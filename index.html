@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Overwatch 2 Random Team Generator</title>
+  <style>
+    :root {
+      --primary: #f9a825;
+      --bg: #1c1c1e;
+      --card: #2c2c2e;
+      --text: #fff;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      color: var(--primary);
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      background-color: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      margin: 0.5rem;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #e69500;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card {
+      background-color: var(--card);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      margin-top: 2rem;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      border-bottom: 1px solid #444;
+      padding-bottom: 0.5rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      padding: 0.5rem 0;
+      font-size: 1.1rem;
+      border-bottom: 1px solid #333;
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    @media (max-width: 500px) {
+      body {
+        padding: 1rem;
+      }
+
+      .card {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Overwatch 2 - Random Hero Team</h1>
+  <div class="buttons">
+    <button onclick="generateTeam()">🎲 Generate Team</button>
+    <button onclick="copyTeam()">📋 Copy to Clipboard</button>
+  </div>
+
+  <div class="card">
+    <h2>Your Team</h2>
+    <ul id="team-list"></ul>
+  </div>
+
+  <!-- Sound -->
+  <audio id="click-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_d1e7a00107.mp3" preload="auto"></audio>
+
+  <script>
+    const tanks = [
+      "D.Va", "Doomfist", "Junker Queen", "Mauga", "Orisa", "Ramattra",
+      "Reinhardt", "Roadhog", "Sigma", "Winston", "Wrecking Ball", "Zarya"
+    ];
+
+    const damage = [
+      "Ashe", "Bastion", "Cassidy", "Echo", "Genji", "Hanzo", "Illari",
+      "Junkrat", "Mei", "Pharah", "Reaper", "Sojourn", "Soldier: 76",
+      "Sombra", "Symmetra", "Torbjörn", "Tracer", "Venture", "Widowmaker"
+    ];
+
+    const support = [
+      "Ana", "Baptiste", "Brigitte", "Illari", "Kiriko", "Lifeweaver",
+      "Lucio", "Mercy", "Moira", "Zenyatta", "Freya"
+    ];
+
+    function getRandomNoDuplicates(pool, count, taken) {
+      const available = pool.filter(hero => !taken.has(hero));
+      const selected = [];
+      while (selected.length < count && available.length > 0) {
+        const index = Math.floor(Math.random() * available.length);
+        const hero = available.splice(index, 1)[0];
+        selected.push(hero);
+        taken.add(hero);
+      }
+      return selected;
+    }
+
+    function generateTeam() {
+      const taken = new Set();
+      const team = {
+        Tank: getRandomNoDuplicates(tanks, 1, taken),
+        Damage: getRandomNoDuplicates(damage, 2, taken),
+        Support: getRandomNoDuplicates(support, 2, taken)
+      };
+
+      const list = document.getElementById("team-list");
+      list.innerHTML = "";
+
+      for (const role in team) {
+        team[role].forEach((hero, i) => {
+          const label = `${role}${team[role].length > 1 ? " " + (i + 1) : ""}: ${hero}`;
+          const li = document.createElement("li");
+          li.textContent = label;
+          list.appendChild(li);
+        });
+      }
+
+      // Play sound
+      const sound = document.getElementById("click-sound");
+      sound.currentTime = 0;
+      sound.play().catch(() => {
+        // Some browsers block autoplay; this avoids errors.
+      });
+    }
+
+    function copyTeam() {
+      const listItems = document.querySelectorAll("#team-list li");
+      const text = Array.from(listItems).map(li => li.textContent).join("\n");
+
+      navigator.clipboard.writeText(text)
+        .then(() => alert("✅ Team copied to clipboard!"))
+        .catch(() => alert("❌ Failed to copy."));
+    }
+
+    // Generate a team when page loads
+    window.onload = generateTeam;
+  </script>
+</body>
+</html>
