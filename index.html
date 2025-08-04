@@ -1,120 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Overwatch 2 Random Team Generator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overwatch 2 Random Hero Selector</title>
   <style>
-    :root {
-      --primary: #f9a825;
-      --bg: #1c1c1e;
-      --card: #2c2c2e;
-      --text: #fff;
-      --radius: 12px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      margin: 0;
-      padding: 2rem;
+      background-image: url('bgi.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: #fff;
       font-family: 'Segoe UI', sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 2rem;
     }
 
     h1 {
-      color: var(--primary);
-      font-size: 2rem;
+      font-size: 2.5rem;
       margin-bottom: 1rem;
-    }
-
-    button {
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      background-color: var(--primary);
-      color: #000;
-      border: none;
-      border-radius: var(--radius);
-      cursor: pointer;
-      margin: 0.5rem;
-      transition: background-color 0.2s ease;
-    }
-
-    button:hover {
-      background-color: #e69500;
-    }
-
-    .buttons {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
     }
 
     .card {
-      background-color: var(--card);
+      background-color: rgba(44, 44, 46, 0.6);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       padding: 1.5rem;
-      border-radius: var(--radius);
+      border-radius: 12px;
       max-width: 400px;
       width: 100%;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
       margin-top: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
-    .card h2 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-      font-size: 1.5rem;
-      border-bottom: 1px solid #444;
-      padding-bottom: 0.5rem;
-    }
-
-    ul {
-      list-style: none;
+    .team-list {
+      list-style-type: none;
       padding: 0;
       margin: 0;
     }
 
-    li {
-      padding: 0.5rem 0;
-      font-size: 1.1rem;
-      border-bottom: 1px solid #333;
+    .team-list li {
+      margin: 0.5rem 0;
+      font-size: 1.2rem;
     }
 
-    li:last-child {
-      border-bottom: none;
+    .button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.2s ease;
     }
 
-    @media (max-width: 500px) {
-      body {
-        padding: 1rem;
-      }
+    .button:hover {
+      background-color: #0056b3;
+    }
 
-      .card {
-        padding: 1rem;
-      }
+    .results {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .results button {
+      margin: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      color: white;
+      transition: background-color 0.2s ease;
+    }
+
+    .results button:nth-child(1) {
+      background-color: #4caf50;
+    }
+
+    .results button:nth-child(2) {
+      background-color: #f44336;
+    }
+
+    .results button:nth-child(3) {
+      background-color: #666;
+    }
+
+    .results button:hover {
+      filter: brightness(1.1);
+    }
+
+    .results p {
+      font-size: 1.2rem;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <h1>Overwatch 2 - Random Hero Team</h1>
-  <div class="buttons">
-    <button onclick="generateTeam()">🎲 Generate Team</button>
-    <button onclick="copyTeam()">📋 Copy to Clipboard</button>
-  </div>
+  <h1>The Safehouse Random Team Challenge</h1>
+  <button class="button" onclick="generateTeam()">🎲 Generate Team</button>
 
   <div class="card">
     <h2>Your Team</h2>
-    <ul id="team-list"></ul>
+    <ul id="teamList" class="team-list"></ul>
   </div>
-
-  <!-- Sound -->
-  <audio id="click-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_d1e7a00107.mp3" preload="auto"></audio>
+<audio id="generate-sound" src="swoosh.mp3" preload="auto"></audio>
+  <div class="results">
+    <button onclick="addWin()">🏆 Won the Match</button>
+    <button onclick="addLoss()">💀 Lost the Match</button>
+    <button onclick="resetCounters()">🔁 Reset Counters</button>
+    <p>Wins: <span id="win-count">0</span> | Losses: <span id="loss-count">0</span></p>
+  </div>
 
   <script>
     const tanks = [
@@ -123,67 +124,73 @@
     ];
 
     const damage = [
-      "Ashe", "Bastion", "Cassidy", "Echo", "Genji", "Hanzo", "Illari",
-      "Junkrat", "Mei", "Pharah", "Reaper", "Sojourn", "Soldier: 76",
-      "Sombra", "Symmetra", "Torbjörn", "Tracer", "Venture", "Widowmaker"
+      "Ashe", "Bastion", "Cassidy", "Echo", "Genji", "Hanzo", "Junkrat", "Mei",
+      "Pharah", "Reaper", "Sojourn", "Soldier: 76", "Sombra", "Symmetra",
+      "Torbjörn", "Tracer", "Venture", "Widowmaker", "Freya"
     ];
 
     const support = [
-      "Ana", "Baptiste", "Brigitte", "Illari", "Kiriko", "Lifeweaver",
-      "Lucio", "Mercy", "Moira", "Zenyatta", "Freya"
+      "Ana", "Baptiste", "Brigitte", "Illari", "Juno", "Kiriko", "Lifeweaver",
+      "Lucio", "Mercy", "Moira", "Zenyatta"
     ];
 
-    function getRandomNoDuplicates(pool, count, taken) {
-      const available = pool.filter(hero => !taken.has(hero));
-      const selected = [];
-      while (selected.length < count && available.length > 0) {
-        const index = Math.floor(Math.random() * available.length);
-        const hero = available.splice(index, 1)[0];
-        selected.push(hero);
-        taken.add(hero);
-      }
-      return selected;
-    }
-
     function generateTeam() {
-      const taken = new Set();
-      const team = {
-        Tank: getRandomNoDuplicates(tanks, 1, taken),
-        Damage: getRandomNoDuplicates(damage, 2, taken),
-        Support: getRandomNoDuplicates(support, 2, taken)
-      };
+const sound = document.getElementById("generate-sound");
+  if (sound) {
+    sound.currentTime = 0; // rewind if already playing
+    sound.play().catch(e => console.warn("Sound couldn't play:", e));
+  }
+      const team = [];
+      const roles = [tanks, damage, damage, support, support];
+      roles.forEach(role => {
+        let pick;
+        do {
+          pick = role[Math.floor(Math.random() * role.length)];
+        } while (team.includes(pick));
+        team.push(pick);
+      });
 
-      const list = document.getElementById("team-list");
-      list.innerHTML = "";
-
-      for (const role in team) {
-        team[role].forEach((hero, i) => {
-          const label = `${role}${team[role].length > 1 ? " " + (i + 1) : ""}: ${hero}`;
-          const li = document.createElement("li");
-          li.textContent = label;
-          list.appendChild(li);
-        });
-      }
-
-      // Play sound
-      const sound = document.getElementById("click-sound");
-      sound.currentTime = 0;
-      sound.play().catch(() => {
-        // Some browsers block autoplay; this avoids errors.
+      const teamList = document.getElementById("teamList");
+      teamList.innerHTML = "";
+      team.forEach(hero => {
+        const li = document.createElement("li");
+        li.textContent = hero;
+        teamList.appendChild(li);
       });
     }
 
-    function copyTeam() {
-      const listItems = document.querySelectorAll("#team-list li");
-      const text = Array.from(listItems).map(li => li.textContent).join("\n");
+    let wins = parseInt(localStorage.getItem('wins')) || 0;
+    let losses = parseInt(localStorage.getItem('losses')) || 0;
 
-      navigator.clipboard.writeText(text)
-        .then(() => alert("✅ Team copied to clipboard!"))
-        .catch(() => alert("❌ Failed to copy."));
+    function updateCounter() {
+      document.getElementById('win-count').textContent = wins;
+      document.getElementById('loss-count').textContent = losses;
+      localStorage.setItem('wins', wins);
+      localStorage.setItem('losses', losses);
     }
 
-    // Generate a team when page loads
-    window.onload = generateTeam;
+    function addWin() {
+      wins++;
+      updateCounter();
+    }
+
+    function addLoss() {
+      losses++;
+      updateCounter();
+    }
+
+    function resetCounters() {
+      if (confirm("Are you sure you want to reset the win/loss counters?")) {
+        wins = 0;
+        losses = 0;
+        localStorage.removeItem('wins');
+        localStorage.removeItem('losses');
+        updateCounter();
+      }
+    }
+
+    // Initialize on load
+    updateCounter();
   </script>
 </body>
 </html>
