@@ -45,24 +45,6 @@
       background-color: #17a589;
     }
 
-    .win-button {
-      background-color: green;
-      color: white;
-    }
-
-    .win-button:hover {
-      background-color: darkgreen;
-    }
-
-    .loss-button {
-      background-color: red;
-      color: white;
-    }
-
-    .loss-button:hover {
-      background-color: darkred;
-    }
-
     .switch-label {
       display: flex;
       align-items: center;
@@ -116,23 +98,19 @@
       margin-bottom: 1rem;
     }
 
-    .team-list {
-      padding-left: 0;
-    }
-
     .team-list li {
-      margin: 0.75rem 0;
-      font-size: 1.4rem;
+      margin: 0.5rem 0;
+      font-size: 1.2rem;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
     }
 
     .team-list img {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      margin-right: 10px;
+      margin-right: 8px;
     }
 
     .counter {
@@ -159,15 +137,14 @@
     <h2>Your Team</h2>
     <ul class="team-list" id="teamList"></ul>
     <div class="counter">
-      <button class="win-button" onclick="recordResult('win')">🏆 Won Match</button>
-      <button class="loss-button" onclick="recordResult('loss')">💀 Lost Match</button>
+      <button onclick="recordResult('win')">🏆 Won Match</button>
+      <button onclick="recordResult('loss')">💀 Lost Match</button>
       <button onclick="resetCounters()">🔁 Reset Counters</button>
     </div>
     <p>Wins: <span id="winCount">0</span> | Losses: <span id="lossCount">0</span></p>
   </div>
 
-  <audio id="generate-sound" src="generate.mp3" preload="auto"></audio>
-  <audio id="toggle-sound" src="toggle.mp3" preload="auto"></audio>
+  <audio id="generate-sound" src="swoosh.mp3" preload="auto"></audio>
 
   <script>
     const tanks = ["D.Va", "Doomfist", "Junker Queen", "Mauga", "Orisa", "Ramattra", "Reinhardt", "Roadhog", "Sigma", "Winston", "Wrecking Ball", "Zarya"];
@@ -215,12 +192,6 @@
       label.textContent = document.getElementById("team-toggle").checked
         ? "6-Player Team"
         : "5-Player Team";
-
-      const toggleSound = document.getElementById("toggle-sound");
-      if (toggleSound) {
-        toggleSound.currentTime = 0;
-        toggleSound.play().catch(e => console.warn("Toggle sound couldn't play:", e));
-      }
     });
 
     function recordResult(result) {
@@ -245,6 +216,7 @@
       document.getElementById("lossCount").textContent = localStorage.getItem("ow2-losses") || 0;
     }
 
+    // Initial update
     updateCounters();
   </script>
 </body>
