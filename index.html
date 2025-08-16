@@ -188,9 +188,8 @@
       const sounds = [
         "generate1.mp3",
         "generate2.mp3",
-        "generate3.mp3"
       ];
-      const weights = [0.6, 0.3, 0.1]; // 60%, 30%, 10%
+      const weights = [0.95, 0.05 ];
 
       const randomFile = weightedRandom(sounds, weights);
       const sound = new Audio(randomFile);
@@ -268,4 +267,5 @@
   </script>
 </body>
 </html>
+
 
