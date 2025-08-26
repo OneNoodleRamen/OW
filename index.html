@@ -214,41 +214,59 @@
   generateAudio.play().catch(e => console.warn("Sound couldn't play:", e));
     }
 
-    function generateTeam() {
-  playRandomGenerateSound();
+function generateTeam() {
+playRandomGenerateSound()
+  const isSixPlayer = document.getElementById("team-toggle").checked;
+  const roles = isSixPlayer
+    ? [tanks, tanks, damage, damage, support, support]
+    : [tanks, damage, damage, support, support];
+
+  const team = [];
+  roles.forEach(role => {
+    let pick;
+    do {
+      pick = role[Math.floor(Math.random() * role.length)];
+    } while (team.includes(pick));
+    team.push(pick);
+  });
 
   const teamList = document.getElementById("teamList");
-  teamList.innerHTML = '<div class="spinner"></div><p>Generating team...</p>';
+  teamList.innerHTML = "";
 
-  setTimeout(() => {
-    const isSixPlayer = document.getElementById("team-toggle").checked;
-    const roles = isSixPlayer
-      ? [tanks, tanks, damage, damage, support, support]
-      : [tanks, damage, damage, support, support];
+  // Slot machine effect
+  const allHeroes = [...tanks, ...damage, ...support];
+  let stopDelay = 0;
 
-    const team = [];
-    roles.forEach(role => {
-      let pick;
-      do {
-        pick = role[Math.floor(Math.random() * role.length)];
-      } while (team.includes(pick));
-      team.push(pick);
-    });
+  team.forEach((hero, index) => {
+    const li = document.createElement("li");
+    teamList.appendChild(li);
 
-    teamList.innerHTML = "";
-    team.forEach(hero => {
-      const li = document.createElement("li");
+    const spinner = setInterval(() => {
+      const randomHero = allHeroes[Math.floor(Math.random() * allHeroes.length)];
+      li.textContent = randomHero;
+    }, 100);
 
+    stopDelay += 500; // each slot stops half a second later
+    setTimeout(() => {
+      clearInterval(spinner);
+
+      // Final hero with image
+      li.innerHTML = "";
       const img = document.createElement("img");
       img.src = `heroes/${hero.replace(/[:. ]/g, '').replace('ö', 'o')}.webp`;
       img.alt = hero;
-
       li.appendChild(img);
       li.append(hero);
-      teamList.appendChild(li);
-    });
-  }, 1000); // 1s delay for effect
+
+      // Play hero sound if available
+      if (heroSounds[hero]) {
+        new Audio(heroSounds[hero]).play().catch(() => {});
+      }
+    }, stopDelay);
+  });
 }
+
+
 
 
     document.getElementById("team-toggle").addEventListener("change", () => {
