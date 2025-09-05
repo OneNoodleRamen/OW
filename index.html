@@ -184,6 +184,9 @@
   <audio id="toggle-sound" src="toggle.mp3" preload="auto"></audio>
 
   <script>
+
+let lastTeam = [];
+	  
     const tanks = ["D.Va", "Doomfist", "Junker Queen", "Mauga", "Orisa", "Ramattra", "Reinhardt", "Roadhog", "Sigma", "Winston", "Wrecking Ball", "Zarya"];
     const damage = ["Ashe", "Bastion", "Cassidy", "Echo", "Genji", "Hanzo", "Junkrat", "Mei", "Pharah", "Reaper", "Sojourn", "Soldier: 76", "Sombra", "Symmetra", "Torbjorn", "Tracer", "Venture", "Widowmaker", "Freya"];
     const support = ["Ana", "Baptiste", "Brigitte", "Illari", "Juno", "Kiriko", "Lifeweaver", "Lucio", "Mercy", "Moira", "Zenyatta"];
@@ -227,7 +230,7 @@ playRandomGenerateSound()
     let pick;
     do {
       pick = role[Math.floor(Math.random() * role.length)];
-    } while (team.includes(pick));
+    } while (team.includes(pick)); || lastTeam.includes(pick));
     team.push(pick);
   });
 
@@ -258,6 +261,8 @@ playRandomGenerateSound()
       img.alt = hero;
       li.appendChild(img);
       li.append(hero);
+
+	lastTeam = [...team];
 
       // Play hero sound if available
       if (heroSounds[hero]) {
@@ -309,6 +314,7 @@ playRandomGenerateSound()
   </script>
 </body>
 </html>
+
 
 
 
