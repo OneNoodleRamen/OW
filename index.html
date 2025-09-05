@@ -230,7 +230,7 @@ playRandomGenerateSound()
     let pick;
     do {
       pick = role[Math.floor(Math.random() * role.length)];
-    } while (team.includes(pick)) || lastTeam.includes(pick));
+    } while (team.includes(pick) || lastTeam.includes(pick));
     team.push(pick);
   });
 
@@ -316,6 +316,7 @@ playRandomGenerateSound()
   </script>
 </body>
 </html>
+
 
 
 
