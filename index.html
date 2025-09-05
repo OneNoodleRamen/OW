@@ -230,7 +230,7 @@ playRandomGenerateSound()
     let pick;
     do {
       pick = role[Math.floor(Math.random() * role.length)];
-    } while (team.includes(pick)); || lastTeam.includes(pick));
+    } while (team.includes(pick)) || lastTeam.includes(pick));
     team.push(pick);
   });
 
@@ -262,13 +262,15 @@ playRandomGenerateSound()
       li.appendChild(img);
       li.append(hero);
 
-	lastTeam = [...team];
+	
 
       // Play hero sound if available
       if (heroSounds[hero]) {
         new Audio(heroSounds[hero]).play().catch(() => {});
       }
     }, stopDelay);
+
+	  lastTeam = [...team];
   });
 }
 
@@ -314,6 +316,7 @@ playRandomGenerateSound()
   </script>
 </body>
 </html>
+
 
 
 
