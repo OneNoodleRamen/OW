@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Safehouse Random Team Challenge</title>
+  <style>
+    body {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+      margin: 0;
+      transition: background-image 0.6s ease-in-out;
+    }
+
+    .button-toggle-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      background-color: #ffa500;
+      color: black;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #17a589;
+    }
+
+    .win-button {
+      background-color: green;
+      color: white;
+    }
+
+    .win-button:hover {
+      background-color: darkgreen;
+    }
+
+    .loss-button {
+      background-color: red;
+      color: white;
+    }
+
+    .loss-button:hover {
+      background-color: darkred;
+    }
+
+    .switch-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      user-select: none;
+    }
+
+    .switch-label input {
+      display: none;
+    }
+
+    .slider {
+      position: relative;
+      width: 50px;
+      height: 26px;
+      background-color: #ffa500;
+      border-radius: 26px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 2px;
+      top: 2px;
+      background-color: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    input:checked + .slider::before {
+      transform: translateX(24px);
+    }
+
+    input:checked + .slider {
+      background-color: #ff7f50;
+    }
+
+    .team-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 1.5rem;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      margin-bottom: 1rem;
+    }
+
+    .team-list {
+      padding-left: 0;
+    }
+
+    .team-list li {
+      margin: 0.75rem 0;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .team-list img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .counter {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid #ffa500;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 1rem auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+  </style>
+</head>
+<body>
+<h1> The Safehouse Random Team Challenge</h1>
+  <div class="button-toggle-container">
+    <button onclick="generateTeam()">Generate Team</button>
+    <label class="switch-label">
+      <input type="checkbox" id="team-toggle">
+      <span class="slider"></span>
+      <span class="toggle-text" id="teamToggleText">5-Player Team</span>
+    </label>
+  </div>
+
+  <div class="team-card">
+    <h2>Your Team</h2>
+    <ul class="team-list" id="teamList"></ul>
+    <div class="counter">
+      <button class="win-button" onclick="recordResult('win')">🏆 Won Match</button>
+      <button class="loss-button" onclick="recordResult('loss')">💀 Lost Match</button>
+      <button onclick="resetCounters()">🔁 Reset Counters</button>
+    </div>
+    <p>Wins: <span id="winCount">0</span> | Losses: <span id="lossCount">0</span></p>
+  </div>
+
+  <audio id="toggle-sound" src="toggle.mp3" preload="auto"></audio>
+
+  <script>
+
+let lastTeam = [];
+
+    // ---- Wechselndes Hintergrundbild ----
+    // Trage hier alle deine Hintergrundbilder ein:
+    const backgroundImages = [
+      "bgi.jpg",
+      "bgi2.png",
+      
+    ];
+    let lastBg = "";
+
+    function setRandomBackground() {
+      let choice;
+      do {
+        choice = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
+      } while (choice === lastBg && backgroundImages.length > 1);
+      lastBg = choice;
+      document.body.style.backgroundImage = `url('${choice}')`;
+    }
+
+    // Direkt beim Laden der Seite ein zufälliges Bild setzen
+    setRandomBackground();
+	  
+    const tanks = ["D.Va","Domina", "Doomfist", "Junker Queen", "Mauga", "Orisa", "Ramattra", "Reinhardt", "Roadhog", "Sigma", "Winston", "Wrecking Ball", "Zarya"];
+    const damage = ["Ashe","Anran", "Bastion", "Cassidy", "Echo","Emre", "Genji", "Hanzo", "Junkrat", "Mei", "Pharah", "Reaper", "Shion", "Sierra", "Sojourn", "Soldier: 76", "Sombra", "Symmetra", "Torbjorn", "Tracer", "Vendetta", "Venture", "Widowmaker", "Freya"];
+    const support = ["Ana", "Baptiste", "Brigitte", "Illari","Jetpack Cat", "Juno", "Kiriko", "Lifeweaver", "Lucio", "Mercy", "Moira", "Zenyatta"];
+
+    // Weighted random helper
+    function weightedRandom(items, weights) {
+      const total = weights.reduce((a, b) => a + b, 0);
+      let rand = Math.random() * total;
+      for (let i = 0; i < items.length; i++) {
+        if (rand < weights[i]) return items[i];
+        rand -= weights[i];
+      }
+      return items[items.length - 1];
+    }
+	const generateAudio = new Audio ();
+
+    function playRandomGenerateSound() {
+      const sounds = [
+        "generate1.mp3",
+        "generate2.mp3",
+        "generate3.mp3"    
+      ];
+      const weights = [0.33, 0.33, 0.33];
+
+      const randomFile = weightedRandom(sounds, weights);
+
+      generateAudio.src = randomFile;
+  generateAudio.currentTime = 0; // restart if it's already playing
+  generateAudio.play().catch(e => console.warn("Sound couldn't play:", e));
+    }
+
+function generateTeam() {
+playRandomGenerateSound()
+  setRandomBackground(); // Hintergrund bei jedem neuen Team wechseln
+  const isSixPlayer = document.getElementById("team-toggle").checked;
+  const roles = isSixPlayer
+    ? [tanks, tanks, damage, damage, support, support]
+    : [tanks, damage, damage, support, support];
+
+  const team = [];
+  roles.forEach(role => {
+    let pick;
+    do {
+      pick = role[Math.floor(Math.random() * role.length)];
+    } while (team.includes(pick) || lastTeam.includes(pick));
+    team.push(pick);
+  });
+
+  const teamList = document.getElementById("teamList");
+  teamList.innerHTML = "";
+
+  // Slot machine effect
+  const allHeroes = [...tanks, ...damage, ...support];
+  let stopDelay = 0;
+
+  team.forEach((hero, index) => {
+    const li = document.createElement("li");
+    teamList.appendChild(li);
+
+    const spinner = setInterval(() => {
+      const randomHero = allHeroes[Math.floor(Math.random() * allHeroes.length)];
+      li.textContent = randomHero;
+    }, 100);
+
+    stopDelay += 500; // each slot stops half a second later
+    setTimeout(() => {
+      clearInterval(spinner);
+
+      // Final hero with image
+      li.innerHTML = "";
+      const img = document.createElement("img");
+      img.src = `heroes/${hero.replace(/[:. ]/g, '').replace('ö', 'o')}.webp`;
+      img.alt = hero;
+      li.appendChild(img);
+      li.append(hero);
+
+	
+
+      // Play hero sound if available
+      if (heroSounds[hero]) {
+        new Audio(heroSounds[hero]).play().catch(() => {});
+      }
+    }, stopDelay);
+  });
+
+	    lastTeam = [...team];
+}
+
+
+
+
+    document.getElementById("team-toggle").addEventListener("change", () => {
+      const label = document.getElementById("teamToggleText");
+      label.textContent = document.getElementById("team-toggle").checked
+        ? "6-Player Team"
+        : "5-Player Team";
+
+      const toggleSound = document.getElementById("toggle-sound");
+      if (toggleSound) {
+        toggleSound.currentTime = 0;
+        toggleSound.play().catch(e => console.warn("Toggle sound couldn't play:", e));
+      }
+    });
+
+    function recordResult(result) {
+      const winCount = localStorage.getItem("ow2-wins") || 0;
+      const lossCount = localStorage.getItem("ow2-losses") || 0;
+      if (result === "win") {
+        localStorage.setItem("ow2-wins", parseInt(winCount) + 1);
+      } else {
+        localStorage.setItem("ow2-losses", parseInt(lossCount) + 1);
+      }
+      updateCounters();
+    }
+
+    function resetCounters() {
+      localStorage.removeItem("ow2-wins");
+      localStorage.removeItem("ow2-losses");
+      updateCounters();
+    }
+
+    function updateCounters() {
+      document.getElementById("winCount").textContent = localStorage.getItem("ow2-wins") || 0;
+      document.getElementById("lossCount").textContent = localStorage.getItem("ow2-losses") || 0;
+    }
+
+    updateCounters();
+  </script>
+</body>
+</html>
